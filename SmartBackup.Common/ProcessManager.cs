@@ -74,7 +74,6 @@ namespace SmartBackup.Common
             public override Task WriteAsync(char[] buffer, int index, int count)
             {
                 string str = new string(buffer, 0, count);
-                Console.Write(str);
                 return base.WriteAsync(buffer, index, count);
             }
 
