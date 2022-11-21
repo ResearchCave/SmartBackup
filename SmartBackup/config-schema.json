@@ -1,0 +1,469 @@
+{
+  "title": "Config",
+  "definitions": {
+    "SMTPSettings": {
+      "title": "SMTP Settings",
+      "description": "SMTP Settings to get backup reports if requested",
+      "type": "object",
+      "properties": {
+        "Server": {
+          "title": "Mail Server",
+          "type": "string"
+        },
+        "Port": {
+          "title": "Mail Server Port",
+          "type": "integer",
+          "default": 25
+        },
+        "From": {
+          "title": "From E-Mail",
+          "description": "Mail address which report will be sent from",
+          "type": "string",
+          "format": "email"
+        },
+        "To": {
+          "title": "To E-Mail",
+          "description": "Mail address to send backup report",
+          "type": "string",
+          "format": "email"
+        },
+        "FromName": {
+          "title": "From E-Mail Name",
+          "description": "Name to be shown on From E-mail",
+          "type": "string"
+        },
+        "UseSSL": {
+          "type": "boolean",
+          "default": true
+        },
+        "Username": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "ErrorActionPreference": {
+      "type": "string",
+      "enum": [
+        "Stop",
+        "Warn"
+      ]
+    },
+    "BackupPath": {
+      "title": "Backup Path",
+      "description": "The target folder to store all backedup files. This is the default destination path for all items if they do not have BackupPath property explicitly.",
+      "type": "string"
+    },
+    "TempPath": {
+      "title": "Temporary Storage Path",
+      "description": "This path is used if current backup job requires a temporary location to save some files. (If it needs to store pre-encryption or if a network mount cannot be available). This is default temp folder if not specified",
+      "type": "string"
+    },
+    "SMTP": {
+      "$ref": "#/definitions/SMTPSettings"
+    },
+    "Items": {
+      "type": "array",
+      "items": {
+        "type": [
+          "string",
+          "number",
+          "integer",
+          "boolean",
+          "object",
+          "array"
+        ]
+      },
+      "uniqueItems": true,
+      "allOf": [
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "MySQL"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "Server": {
+                  "type": "string",
+                  "default": "localhost"
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\ \r\nNote: This should be a folder on the PC where MySql service is installed. (or a remote disk which is accessible by the account SQLServer is running on)",
+                  "type": "string"
+                },
+                "Database": {
+                  "description": "Name of MySQL Database",
+                  "type": "string"
+                },
+                "Username": {
+                  "description": "Username for Mysql authentication.",
+                  "type": "string"
+                },
+                "Password": {
+                  "type": "string"
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "Server",
+                "Database",
+                "Type"
+              ]
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "MSSQL"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "Server": {
+                  "type": "string"
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\ \r\nNote: This should be a folder on the PC where SQL Server service is installed. (or a remote disk which is accessible by the account SQLServer is running on)",
+                  "type": "string"
+                },
+                "Database": {
+                  "description": "Name of MSSQL Database",
+                  "type": "string"
+                },
+                "Username": {
+                  "description": "Username for MSSQL authentication",
+                  "type": "string"
+                },
+                "Password": {
+                  "type": "string"
+                },
+                "BackupType": {
+                  "title": "Backup type",
+                  "type": "string",
+                  "default": "Full",
+                  "enum": [
+                    "Full",
+                    "Incremental"
+                  ]
+                },
+                "TempPath": {
+                  "title": "Temp Path",
+                  "description": "MSSQL uses its own user which may not have access to shared folders. If this is the case, you can use a temporary local folder and it will be copied from the temp path to your target folder after the backup operation",
+                  "type": "string"
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "Server",
+                "Database",
+                "Type"
+              ]
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "HyperV"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "Server": {
+                  "type": "string"
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\",
+                  "type": "string"
+                },
+                "VM": {
+                  "description": "Name of Virtual Machine",
+                  "type": "string"
+                },
+                "Username": {
+                  "description": "Username for HyperV authentication. Set null for windows authentication",
+                  "type": "string"
+                },
+                "Password": {
+                  "type": "string"
+                },
+                "OverwriteBackupIfExists": {
+                  "title": "Overwrite existing vm backup if exists",
+                  "description": "HyperV Export does not overwrite existing backup by default, If this flag is true, existing backup will be removed prior to backup operation",
+                  "type": "boolean",
+                  "default": true
+                },
+                "TempPath": {
+                  "title": "Temp Path",
+                  "description": "HyperV uses its own user which may not have access to shared folders. If this is the case, you can use a temporary local folder and it will be copied from the temp path to your target folder after the backup operation",
+                  "type": "string"
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "Server",
+                "VM",
+                "Type"
+              ]
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "MongoDB"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "MongoDbDir": {
+                  "description": "Local path containing MongoDb binaries.",
+                  "type": "string"
+                },
+                "Port": {
+                  "type": "integer"
+                },
+                "Database": {
+                  "type": "string"
+                },
+                "Host": {
+                  "description": "Mongo server hostname (without port).",
+                  "type": "string",
+                  "default": "localhost"
+                },
+                "AuthenticationDatabase": {
+                  "type": "string",
+                  "default": "admin"
+                },
+                "Username": {
+                  "type": "string"
+                },
+                "Password": {
+                  "type": "string"
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\\r\nChange this if you want to back up to any other location than global backup location",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "MongoDbDir",
+                "Database",
+                "Host",
+                "Type"
+              ]
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "File"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "Path": {
+                  "description": "Path to backup; Example: C:\\Projects\\",
+                  "type": "string"
+                },
+                "CompressionLevel": {
+                  "description": "Compression Level \r\n\r\n0:Uncompressed\r\n 1:Low compression \r\n2:MediumCompression \r\n3: High Comression ",
+                  "type": "integer",
+                  "default": 2,
+                  "minimum": 0.0,
+                  "maximum": 255.0
+                },
+                "Password": {
+                  "description": "Password for this backup",
+                  "type": "string"
+                },
+                "Skip": {
+                  "description": "Files/Folders will be skipped if they contain this string in their filename\r\nIn the first form, do not add, extract, or list files that match any file by name.\r\n\r\nfile may contain wildcards * and ? that match any string or character respectively, including /. A match to a directory also matches all of its contents. In Windows, matches are not case sensitive, and \\ matches /.\r\n\r\nIn Unix/Linux, arguments with wildcards must be quoted to protect them from the shell.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\\r\nChange this if you want to back up to any other location than global backup location",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Path",
+                "Type"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "CompressionLevel": {
+      "title": "Compression Level",
+      "type": "integer"
+    },
+    "Password": {
+      "description": "Default password for archives, this password will be used for all backup modules supporting encryption",
+      "type": "string"
+    },
+    "SendReport": {
+      "description": "Send mail after all backup jobs (Using SMTP Settings). If this property is not specified, mail report will be sent if SMTP settings are present.",
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "ErrorActionPreference",
+    "Items"
+  ]
+}

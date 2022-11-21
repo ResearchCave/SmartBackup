@@ -1,0 +1,81 @@
+//This is an example file, use this file as an example
+//and rename it to config.json to configure your backup jobs
+{
+  "$schema": "config-schema.json", 
+
+  "ErrorActionPreference": "Stop",
+  "BackupPath": "C:\\BACKUP\\",
+
+  "Items": [
+    {
+      "Type": "File",
+      "Path": "c:\\Files\\",
+      "CompressionLevel": 1,
+      "Name": "My files",
+      "Skip": ["nobackup"]
+    },
+    {
+      "Type": "MongoDb",
+      "Host": "localhost",
+      "Port": 27017,
+      "MongoDbDir": "C:\\MongoDB\\Server\\4.0\\bin",
+      "Database": "test",
+      "BackupPath": "c:\\temp\\backup\\",
+
+      "Username": "admin",
+      "Password": "*******"
+    },
+
+    {
+      "Type": "HyperV",
+      "VM": "TestVM",
+      "Server": "localhost",
+      "TempPath": "d:\\Temp\\"
+    },
+    {
+      "Type": "MySQL",
+      "Database": "imon",
+      "Server": "localhost",
+      "Username": "root",
+      "Password": "",
+      "BackupPath": "c:\\temp\\backup\\",
+      "CloseProcesses": [ "win32calc.exe" ]
+    },
+    {
+      "Type": "MSSQL",
+      "Server": "(local)",
+      "Database": "MyProjectDb",
+      "BackupType": "Incremental",
+      "Name": "MSSQL Backup",
+      "Username": "sa",
+      "Password": "********",
+      "BackupPath": "d:\\temp\\backup",
+      "TempPath": "d:\\Temp\\"
+    }
+
+  ],
+
+  "CompressionLevel": 3,
+  "Password": "yoursecretpassword",
+
+  "SkipFolders": [ "NoBackup" ],
+  "SMTP": {
+
+    "SendMailReport": false,
+    "Server": "mail.researchcave.com",
+    "UseSSL": true,
+    "Port": 465,
+    "FromName": "Aytek Ustundag",
+    "From": "example@researchcave.com",
+    "To": "example@gmail.com",
+    "Username": "example@researchcave.com",
+    "Password": "*****"
+  },
+  "PreKillProcesses": [
+    "calc.exe"
+  ],
+  "PostStartProcesses": [
+    "calc.exe"
+  ] 
+
+}

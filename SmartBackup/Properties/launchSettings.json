@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "SmartBackup": {
+      "commandName": "Project"
+    },
+    "GenerateSchema": {
+      "commandName": "Project",
+      "commandLineArgs": "--GenerateSchema --validate"
+    }
+  }
+}
