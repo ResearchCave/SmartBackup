@@ -38,9 +38,11 @@ namespace SmartBackup.HyperV
             string backupPath = Info.BackupPath;
             if(!String.IsNullOrEmpty(Info.TempPath))
             {
-                if(!Directory.Exists(Info.TempPath)) Directory.CreateDirectory(Info.TempPath);
+                string tmpPath = Info.TempPath;
+                tmpPath = tmpPath.Replace("%temp%", Path.GetTempPath(), StringComparison.OrdinalIgnoreCase);
+                if (!Directory.Exists(tmpPath)) Directory.CreateDirectory(tmpPath);
 
-                backupPath = Info.TempPath;
+                backupPath = tmpPath;
             }
 
             List<string> args = new List<string>();

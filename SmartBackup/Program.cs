@@ -77,7 +77,7 @@ namespace SmartBackup
           //  string CurrentDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
      string CurrentDir = Path.GetDirectoryName(Environment.ProcessPath);
 
-            Console.WriteLine("CurrentDir:"+ CurrentDir);
+          //  Console.WriteLine("CurrentDir:"+ CurrentDir);
 			DateTime now= DateTime.Now;
 
             string timestamp = now.ToString("yyyy-MM-dd_HH-mm");
