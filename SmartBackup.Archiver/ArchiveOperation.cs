@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SmartBackup.Archiver
 {
@@ -64,66 +65,7 @@ namespace SmartBackup.Archiver
                 output.Write(buffer, 0, bytesRead);
             }
         }
-        public override void Backup()
-        {
-            string zipname = GetBackupFileName();
-            string BackupFullFileName = Path.Combine(Info.BackupPath, zipname);
-
-            string zpaqfullpath = zpaqexe;
-
-            if(!System.IO.File.Exists(zpaqexe))
-            {
-                string SmartBackupTempPath = Path.Combine(Path.GetTempPath(), "SmartBackup");
-                if (!Directory.Exists(SmartBackupTempPath)) Directory.CreateDirectory(SmartBackupTempPath);
-
-                string newzpaqpath = Path.Combine(SmartBackupTempPath, zpaqexe);
-
-                var assembly = Assembly.GetExecutingAssembly();
-            //    var resourceNames = assembly.GetManifestResourceNames();
-                var resourceName = "SmartBackup.Archiver."+zpaqexe;
-
-              
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (Stream output = File.Create(newzpaqpath))
-                {
-                    CopyStream(stream, output);
-                }
-                zpaqfullpath = newzpaqpath;
-             }
-
-            List<string> args=new List<string>();
-
-            //$cmdtorun = """zpaq.exe"" add    ""$backupdir$zipname"" ""$Item"""
-            args.Add("add");
-            args.Add(BackupFullFileName);
-            args.Add(Info.Path);
-
-            if(Info.Skip!=null)
-            foreach (string  skip in Info.Skip)
-            {
-            args.Add("-not");
-            args.Add(skip);
-            }
-
-            if (!String.IsNullOrEmpty(this.Info.Password))
-            {
-            args.Add("-key");
-            args.Add(this.Info.Password);
-            }
-
-            ReportProgress(0);
-
-           int result= pm.StreamCommand(zpaqfullpath, args.ToArray());
-
-            if(result!=0)
-            {
-                throw new Exception(String.Format("Unexpected return code {0}, Backup job failed.",result ));
-            }
-
-            ReportProgress(100);
-
-
-        }
+ 
 
         public override void Configure(object o)
         {
@@ -142,6 +84,61 @@ namespace SmartBackup.Archiver
                 throw new Exception( String.Format("Unexpected Item Type:{0}" , jitem.ValueKind ));
             }
 
+        }
+
+        public override async  Task  BackupAsync() {
+            string zipname = GetBackupFileName();
+            string BackupFullFileName = Path.Combine(Info.BackupPath, zipname);
+
+            string zpaqfullpath = zpaqexe;
+
+            if (!System.IO.File.Exists(zpaqexe)) {
+                string SmartBackupTempPath = Path.Combine(Path.GetTempPath(), "SmartBackup");
+                if (!Directory.Exists(SmartBackupTempPath)) Directory.CreateDirectory(SmartBackupTempPath);
+
+                string newzpaqpath = Path.Combine(SmartBackupTempPath, zpaqexe);
+
+                var assembly = Assembly.GetExecutingAssembly();
+                //    var resourceNames = assembly.GetManifestResourceNames();
+                var resourceName = "SmartBackup.Archiver." + zpaqexe;
+
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (Stream output = File.Create(newzpaqpath)) {
+                    CopyStream(stream, output);
+                }
+                zpaqfullpath = newzpaqpath;
+            }
+
+            List<string> args = new List<string>();
+
+            //$cmdtorun = """zpaq.exe"" add    ""$backupdir$zipname"" ""$Item"""
+            args.Add("add");
+            args.Add(BackupFullFileName);
+            args.Add(Info.Path);
+
+            if (Info.Skip != null)
+                foreach (string skip in Info.Skip) {
+                    args.Add("-not");
+                    args.Add(skip);
+                }
+
+            if (!String.IsNullOrEmpty(this.Info.Password)) {
+                args.Add("-key");
+                args.Add(this.Info.Password);
+            }
+
+            ReportProgress(0);
+
+            int result = pm.StreamCommand(zpaqfullpath, args.ToArray());
+
+            if (result != 0) {
+                throw new Exception(String.Format("Unexpected return code {0}, Backup job failed.", result));
+            }
+
+            ReportProgress(100);
+
+          
         }
     }
 }

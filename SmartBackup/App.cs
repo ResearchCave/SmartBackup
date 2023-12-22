@@ -68,18 +68,18 @@ namespace SmartBackup
         public void PreInit()
         {
 
-
+          
 
             var BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MySQLBackupOperation));
             BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MSSQLBackupOperation));
-            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(VMBackupOperation));
+            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(VMBackupOperation)); 
             BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MongoBackupOperation));
-
+            
 
 
         }
         static System.Threading.Mutex singleton = new Mutex(true, "RCSmartBackup");
-        public int Run()
+        public async Task<int> Run()
         {
 
             log.Information("ResearchCave - SmartBackup 2022\t{0}", "https://www.researchcave.com");
@@ -195,7 +195,7 @@ namespace SmartBackup
 
 
             #region TryCreateBackupPath
-            if (String.IsNullOrEmpty(ConfigurationReader.Configuration.BackupPath))
+            if (String.IsNullOrEmpty(ConfigurationReader.Configuration?.BackupPath))
             {
                 log.Fatal("No 'BackupPath' setting in configuration");
                 return 4;
@@ -213,8 +213,16 @@ namespace SmartBackup
                     log.Fatal("Could not create BackupPath: {0} setting in configuration; ERR: {1}", ConfigurationReader.Configuration.BackupPath, x.Message);
                     return 5;
                 }
+
+
             }
             #endregion
+            if(!String.IsNullOrEmpty(ConfigurationReader.Configuration.BackupPath))
+            {
+                log.Information("Backup Path: {0}" , ConfigurationReader.Configuration.BackupPath);
+            }
+          
+
 
             if (ConfigurationReader.Configuration.Items == null)
             {
@@ -235,6 +243,7 @@ namespace SmartBackup
             List<IBackupOperation> BackupOperations = new List<IBackupOperation>();
 
             sw.Start();
+          
 
             int jobno = 0;
             foreach (var item in ConfigurationReader.Configuration.Items)
@@ -242,8 +251,8 @@ namespace SmartBackup
                 jobno++;
                 IBackupOperation BackupOp = null;
 
-                string BackupType = "";
-                string BackupName = "";
+                string? BackupType = "";
+                string? BackupName = "";
 
                 JsonElement jitem = (JsonElement)item;
 
@@ -313,22 +322,29 @@ namespace SmartBackup
             log.Information("Configuration Complete, Starting Backup Jobs");
             int total = BackupOperations.Count;
             int cnt = 0;
+            int succesful = 0;
             foreach (IBackupOperation BackupOp in BackupOperations)
-            {
+            {  cnt++;
                 try
                 {
                     log.Information("Starting Backup job {0}/{1}: {2}", cnt, total, BackupOp.ToString());
-                    BackupOp.Backup();
-                    cnt++;
+                    await  BackupOp.BackupAsync();
+                    succesful++;
                 }
                 catch (Exception x)
                 {
                     log.Error(x, "Error: {0}", x);
+                    if(ConfigurationReader.Configuration.ErrorActionPreference == ErrorActionPreferences.Stop) {
+
+                        log.Fatal(x, "Error Action configured as {0}, so quitting", "Stop");
+                        break;
+                    }
+
                 }
             }
 
             sw.Stop();
-            log.Information("Backup jobs finished. {0}/{1} Elapsed Time:{2}", cnt, total, sw.Elapsed);
+            log.Information("Backup jobs finished. {0}/{1} Elapsed Time:{2}", succesful, total, sw.Elapsed);
 
             //Close log file so we can send it via Email
             Serilog.Log.CloseAndFlush();

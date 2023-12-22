@@ -48,7 +48,7 @@ namespace SmartBackup.Common
 
         public abstract string GetBackupFileName();
 
-        public abstract void Backup();
+        public  abstract Task BackupAsync();
 
         protected IBackupInfo Data { get; set; }
         public void PreConfigure(IServiceProvider _sp)
@@ -160,5 +160,7 @@ namespace SmartBackup.Common
             string str2 = new string(cc).ToLowerInvariant();
             return str2;
         }
+
+   
     }
 }

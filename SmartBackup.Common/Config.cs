@@ -25,7 +25,6 @@ namespace SmartBackup.Model
     public class Config  
     {
         [Required]
-
         public ErrorActionPreferences ErrorActionPreference { get; set; } = ErrorActionPreferences.Stop;
 
         [DisplayName("Backup Path")]
@@ -39,9 +38,7 @@ namespace SmartBackup.Model
 
         [DisplayName("SMTP Settings")]
         [Description("SMTP Settings to get backup reports if requested")]
-
-
-         public  SMTPSettings SMTP { get; set; }
+        public  SMTPSettings SMTP { get; set; }
 
         [Required]
         [NotNull]

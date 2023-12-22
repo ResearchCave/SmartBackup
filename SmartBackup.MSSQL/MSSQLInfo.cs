@@ -15,6 +15,8 @@ namespace SmartBackup.Model
     }
     public  class MSSQLInfo: BackupInfo
 	{
+    //    public string Name { get; set; }
+
         [Required]
         public string Server { get; set; }
 

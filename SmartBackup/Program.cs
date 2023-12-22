@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Serilog.Events;
+using SmartBackup.Archiver;
 using SmartBackup.Common;
 using SmartBackup.Model;
 using SmartBackup.Services;
@@ -18,7 +19,7 @@ namespace SmartBackup
 {
     public class Program
     {
-      public static   int   Main(string[] args)
+      public static   async Task<int>   Main(string[] args)
         {
 
             bool stopProcessing = false;
@@ -60,7 +61,7 @@ namespace SmartBackup
             // create service provider
             var serviceProvider = serviceCollection.BuildServiceProvider();
 			// run app
-			return serviceProvider.GetService<App>().Run();
+			return  await (  serviceProvider.GetService<App>().Run() );
 
              
 
@@ -112,6 +113,9 @@ namespace SmartBackup
             services.AddSingleton(Serilog.Log.Logger); 
 			AppDomain.CurrentDomain.ProcessExit += (s, e) => Serilog.Log.CloseAndFlush();
 			#endregion
+
+
+           
 
 			services.AddSingleton<IConfReader,ConfReader>();
             services.AddSingleton<PluginManager>();

@@ -46,7 +46,12 @@ namespace SmartBackup.Services
                 ReadCommentHandling = JsonCommentHandling.Skip
             };
             Configuration = System.Text.Json.JsonSerializer.Deserialize<Config>(jsstring, options);
-         
+
+            if (!String.IsNullOrEmpty(Configuration.BackupPath))
+            {
+                if (Configuration.BackupPath.Contains("%temp%", StringComparison.OrdinalIgnoreCase))
+                Configuration.BackupPath = Configuration.BackupPath.Replace("%temp%", Path.GetTempPath(), StringComparison.OrdinalIgnoreCase);
+            }
             /*
             if( String.IsNullOrEmpty(Configuration.TempPath))
             {

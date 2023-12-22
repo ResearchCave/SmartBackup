@@ -25,7 +25,7 @@ namespace SmartBackup.MongoDb
 
         const int MongoDBDefaultPort = 27019;
 
-        public override void Backup()
+        public override async  Task BackupAsync()
         {
             string mongodumpexe = "mongodump.exe";
             //mongodump --port 27020 --db test --out /mydata/restoredata/

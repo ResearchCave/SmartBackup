@@ -9,12 +9,12 @@
   <ItemGroup>
     <PackageReference Include="MySQLBackupNetCore" Version="2.1.0" />
     <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="7.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.0" />
     <PackageReference Include="System.Globalization" Version="4.3.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
-    <PackageReference Include="System.Threading.AccessControl" Version="7.0.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

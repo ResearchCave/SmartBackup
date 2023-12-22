@@ -12,8 +12,11 @@ namespace SmartBackup.MSSQL
     public class MSSQLBackupOperation :   BackupOperation
     {
         readonly ILogger log;
-        public MSSQLBackupOperation(ILogger _log)
+      //  readonly Archiver.IFileArchiver fa;
+        public MSSQLBackupOperation(ILogger _log )
         {
+           
+            // fa  = _fa;
             this.log = _log;
         }
         public MSSQLInfo Info { get { return (MSSQLInfo)Data; } set { Data = value; } }
@@ -25,7 +28,8 @@ namespace SmartBackup.MSSQL
             Info = jitem.Deserialize<MSSQLInfo>(SerializationOptions);
             
         }
-		public override void Backup()
+       
+		public override async  Task BackupAsync()
         {
 
             Server myServer = null;
@@ -58,7 +62,9 @@ namespace SmartBackup.MSSQL
             if (!String.IsNullOrEmpty(Info.TempPath))
             {
                 string tmpPath = Info.TempPath;
+                if(tmpPath.Contains("%temp%", StringComparison.OrdinalIgnoreCase)) { 
                 tmpPath = tmpPath.Replace("%temp%", Path.GetTempPath(), StringComparison.OrdinalIgnoreCase);
+                }
                 if (!Directory.Exists(tmpPath)) Directory.CreateDirectory(tmpPath);
 
                 backupPath = tmpPath;
@@ -83,11 +89,12 @@ namespace SmartBackup.MSSQL
             /* You can take backup on several media type (disk or tape), here I am
              * using File type and storing backup on the file system */
              bkpDBFull.SkipTapeHeader= true;
-            bkpDBFull.FormatMedia = true;
+            bkpDBFull.FormatMedia = false ;
          
             bkpDBFull.CompressionOption = BackupCompressionOptions.On;
             bkpDBFull.Devices.AddDevice(BackupFile, Microsoft.SqlServer.Management.Smo.DeviceType.File);
             bkpDBFull.BackupSetName = $"{Info.Database} Database Backup";
+          
           //  bkpDBFull.BackupSetDescription = "Pasaj database - Full Backup";
             /* You can specify the expiration date for your backup data
              * after that date backup data would not be relevant */
@@ -99,13 +106,13 @@ namespace SmartBackup.MSSQL
              * medium and to overwrite any other existing backup sets if the all the
              * backup sets have expired and specified backup set name matches with
              * the name on the medium */
-            if(Info.BackupType== SQLBackupType.Full)
+            if (Info.BackupType== SQLBackupType.Full)
             {
-                bkpDBFull.Initialize = false;
+                bkpDBFull.Initialize = true ;
             }
             else if (Info.BackupType == SQLBackupType.Incremental)
             {
-                bkpDBFull.Initialize = true ;
+                bkpDBFull.Initialize = false  ;
             }
            
 
@@ -169,7 +176,8 @@ namespace SmartBackup.MSSQL
 
         public override string GetBackupFileName()
         {
-            throw new NotImplementedException();
+            return Info.Name;
+        //    throw new NotImplementedException();
         }
     }
 }

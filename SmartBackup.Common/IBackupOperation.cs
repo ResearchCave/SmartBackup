@@ -1,5 +1,6 @@
 ﻿using SmartBackup.Model;
 using System;
+using System.Threading.Tasks;
 using static SmartBackup.Common.BackupOperation;
 
 namespace SmartBackup.Common
@@ -13,6 +14,6 @@ namespace SmartBackup.Common
         void ReportProgress(float progress);
         bool EncryptionSupported { get;  } 
         void Configure(object  o);
-        void Backup();
+            Task BackupAsync();
     }
 }

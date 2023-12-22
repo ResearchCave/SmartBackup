@@ -22,7 +22,7 @@ namespace SmartBackup.MSSQL
            JsonElement jitem = (JsonElement)o;
            Info = jitem.Deserialize<MySQLInfo>(SerializationOptions);
         }
-		public override void Backup()
+		public override async  Task BackupAsync()
         {
             string BackupName = Info.Database + ".sql";
             string BackupFile = Path.Combine(Info.BackupPath, BackupName);

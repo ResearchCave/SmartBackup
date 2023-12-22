@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SmartBackup.HyperV
 {
@@ -29,7 +30,7 @@ namespace SmartBackup.HyperV
             Info = jitem.Deserialize<VMInfo>(SerializationOptions);
            
         }
-		public override void Backup()
+		public override async  Task BackupAsync()
         {
             string exportcmd = "Export-VM";
             string zipname = GetBackupFileName();
@@ -40,7 +41,8 @@ namespace SmartBackup.HyperV
             {
                 string tmpPath = Info.TempPath;
                 tmpPath = tmpPath.Replace("%temp%", Path.GetTempPath(), StringComparison.OrdinalIgnoreCase);
-                if (!Directory.Exists(tmpPath)) Directory.CreateDirectory(tmpPath);
+                if (!Directory.Exists(tmpPath)) 
+                    Directory.CreateDirectory(tmpPath);
 
                 backupPath = tmpPath;
             }
@@ -84,7 +86,7 @@ namespace SmartBackup.HyperV
 
             if (result != 0)
             {
-                throw new Exception(String.Format("Unexpected return code {0}, Backup job failed.", result));
+                throw new Exception(String.Format("Unexpected return code {0}, Backup job failed. Does the VM {1} exists?", result, Info.VM));
             }
             ReportProgress(100);
             if (!String.IsNullOrEmpty(Info.TempPath))

@@ -146,6 +146,7 @@ namespace SmartBackup.Services
 
             foreach (Assembly assembly in allAssemblies)
             {
+                if (assembly is null) continue;
                 foreach (Type type in assembly.GetTypes())
                 {
                     var attribs = type.GetCustomAttributes(typeof(BackupModuleAttribute), false);
