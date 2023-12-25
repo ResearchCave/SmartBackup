@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <None Remove="zpaq.exe" />
+    <None Remove="zpaq64.exe" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,7 @@
     <EmbeddedResource Include="zpaq.exe">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="zpaq64.exe" />
   </ItemGroup>
 
 </Project>

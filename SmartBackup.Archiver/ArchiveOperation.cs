@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -23,7 +24,27 @@ namespace SmartBackup.Archiver
 
         public override bool EncryptionSupported { get { return true; } }
          
-        const string zpaqexe = "zpaq.exe";
+      
+
+        public string  zpaqexe { get {
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    if (RuntimeInformation.OSArchitecture == Architecture.X64)
+                        return "zpaq64.exe";
+                    else if (RuntimeInformation.OSArchitecture == Architecture.X86)
+                        return "zpaq.exe";
+                    else return null;
+                }
+
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    return "zpaq.mac"; 
+                }
+
+                else return null;
+			} 
+        }
         public override bool TestPath()
         {
 
@@ -89,10 +110,14 @@ namespace SmartBackup.Archiver
         public override async  Task  BackupAsync() {
             string zipname = GetBackupFileName();
             string BackupFullFileName = Path.Combine(Info.BackupPath, zipname);
+            string zpaqfullpath = "";
 
-            string zpaqfullpath = zpaqexe;
+			 
+				zpaqfullpath = zpaqexe; 
+		 
 
-            if (!System.IO.File.Exists(zpaqexe)) {
+
+			if (!System.IO.File.Exists(zpaqexe)) {
                 string SmartBackupTempPath = Path.Combine(Path.GetTempPath(), "SmartBackup");
                 if (!Directory.Exists(SmartBackupTempPath)) Directory.CreateDirectory(SmartBackupTempPath);
 
