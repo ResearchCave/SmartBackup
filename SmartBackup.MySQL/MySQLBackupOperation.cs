@@ -1,6 +1,5 @@
 ﻿
-using MySql.Data.MySqlClient;
-using MySQLBackupNetCore;
+using MySql.Data.MySqlClient; 
 using SmartBackup.Common;
 using SmartBackup.Model;
 using System.Text.Json;
@@ -44,8 +43,9 @@ namespace SmartBackup.MSSQL
                 {
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
-                        mb.ExportProgressChanged += Mb_ExportProgressChanged;
-                        mb.ExportCompleted += Mb_ExportCompleted; ;
+                        mb.ExportCompleted += Mb_ExportCompleted1;
+                        mb.ExportProgressChanged += Mb_ExportProgressChanged1;
+                   
 
                         cmd.Connection = conn;
                         conn.Open();
@@ -58,15 +58,17 @@ namespace SmartBackup.MSSQL
 
         }
 
-        private void Mb_ExportCompleted(object sender, MySQLBackupNetCore.EventArgs.ExportCompleteArgs e)
+        private void Mb_ExportProgressChanged1(object sender, ExportProgressArgs e)
+        {
+            ReportProgress((float)(e.CurrentRowIndexInAllTables * 100 / e.TotalRowsInAllTables));
+        }
+
+        private void Mb_ExportCompleted1(object sender, ExportCompleteArgs e)
         {
             ReportProgress(100);
         }
 
-        private void Mb_ExportProgressChanged(object sender, MySQLBackupNetCore.EventArgs.ExportProgressArgs e)
-        {
-            ReportProgress((float)(e.CurrentRowIndexInAllTables  *100 / e.TotalRowsInAllTables));
-        }
+   
 
         public override string GetBackupFileName()
         {
