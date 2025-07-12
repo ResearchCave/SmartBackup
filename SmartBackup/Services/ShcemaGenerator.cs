@@ -20,11 +20,9 @@ namespace SmartBackup.Services
     {
         readonly PluginManager PluginMgr;
         readonly ILogger log;
-        public SchemaGenerator(PluginManager _PluginMgr, ILogger _log)
+        public SchemaGenerator(  ILogger _log)
         {
-
-            log = _log;
-            PluginMgr = _PluginMgr;
+            log = _log; 
         }
         public string GenerateSchemaForClass(Type myType)
         {

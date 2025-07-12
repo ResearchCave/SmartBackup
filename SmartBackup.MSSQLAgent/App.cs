@@ -124,8 +124,7 @@ namespace SmartBackup.Agent
         public async Task<int> Run()
         {
 
-            log.Information("ResearchCave - SmartBackup 2022 Agent\t{0}", "https://www.researchcave.com");
-            log.Information("Backup Started on {0}", envinf.MachineName);
+            log.Information("ResearchCave - SmartBackup 2022 Agent\t{0}", "https://www.researchcave.com"); 
 
 
 

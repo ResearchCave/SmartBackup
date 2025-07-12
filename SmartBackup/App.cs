@@ -68,9 +68,9 @@ namespace SmartBackup
         public void PreInit()
         {
 
-          
+            IBackupOperation BackupOp = null;
 
-            var BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MySQLBackupOperation));
+            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MySQLBackupOperation));
             BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MSSQLBackupOperation));
             BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(VMBackupOperation)); 
             BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MongoBackupOperation));
