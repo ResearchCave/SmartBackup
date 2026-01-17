@@ -10,11 +10,8 @@ using Newtonsoft.Json.Schema.Generation;
 using Serilog;
 using ShellProgressBar;
 using SmartBackup.Archiver;
-using SmartBackup.Common;
-using SmartBackup.HyperV;
-using SmartBackup.Model;
-using SmartBackup.MongoDb;
-using SmartBackup.MSSQL;
+using SmartBackup.Common; 
+using SmartBackup.Model;  
 using SmartBackup.Services;
 using System;
 using System.Collections.Generic;
@@ -65,19 +62,19 @@ namespace SmartBackup
 
 
 
-        public void PreInit()
-        {
+        //public void PreInit()
+        //{
 
-            IBackupOperation BackupOp = null;
+        //    IBackupOperation BackupOp = null;
 
-            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MySQLBackupOperation));
-            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MSSQLBackupOperation));
-            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(VMBackupOperation)); 
-            BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MongoBackupOperation));
+        //    //BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MySQLBackupOperation));
+        //    //BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MSSQLBackupOperation));
+        //    //BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(VMBackupOperation)); 
+        //    //BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(MongoBackupOperation));
             
 
 
-        }
+        //}
         static System.Threading.Mutex singleton = new Mutex(true, "RCSmartBackup");
         public async Task<int> Run()
         {
@@ -91,7 +88,7 @@ namespace SmartBackup
          
 
 
-            PreInit();
+          //  PreInit();
 
             const int totalTicks = 100;
             var options = new ProgressBarOptions
@@ -262,7 +259,7 @@ namespace SmartBackup
                     BackupType = "File";
                     BackupName = jitem.GetString();
 
-                    log.Information("Initializing Backup Operation {0} [{1}]", BackupName, BackupType);
+                    log.Information("Initializing Backup Operation [{0}]\t{1}", BackupType, BackupName  );
                 }
                 else
                 {
@@ -285,7 +282,7 @@ namespace SmartBackup
                             if (ModuleType != null)
                             {
                                 BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, ModuleType);
-                                log.Information("Initializing Backup Operation {0} [{1}]", BackupName, BackupType);
+                                log.Information("Initializing Backup Operation [{0}]\t{1}", BackupType, BackupName);
                             }
                             else
                             {

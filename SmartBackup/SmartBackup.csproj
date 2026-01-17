@@ -46,7 +46,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -56,11 +56,24 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartBackup.Archiver\SmartBackup.Archiver.csproj" />
-    <ProjectReference Include="..\SmartBackup.Common\SmartBackup.Common.csproj" />
-    <ProjectReference Include="..\SmartBackup.HyperV\SmartBackup.HyperV.csproj" />
-    <ProjectReference Include="..\SmartBackup.MongoDB\SmartBackup.MongoDB.csproj" />
-    <ProjectReference Include="..\SmartBackup.MSSQL\SmartBackup.MSSQL.csproj" />
-    <ProjectReference Include="..\SmartBackup.MySQL\SmartBackup.MySQL.csproj" />
+    <ProjectReference Include="..\ThirdParty\RoboSharp\RoboSharp.csproj" />
   </ItemGroup>
+
+
+
+	<ItemGroup>
+		<NativeKerberosDlls Include="$(PublishDir)krb*.dll" />
+		<NativeKerberosDlls Include="$(PublishDir)k5*.dll" />
+		<NativeKerberosDlls Include="$(PublishDir)gssapi*.dll" />
+	</ItemGroup>
+
+	<Target Name="MoveNativeKerberosDlls" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)runtimes\win-x64\native" />
+
+		<Move SourceFiles="@(NativeKerberosDlls)" DestinationFolder="$(PublishDir)runtimes\win-x64\native" />
+	</Target>
+
+
+
 
 </Project>

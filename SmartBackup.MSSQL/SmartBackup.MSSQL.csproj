@@ -16,6 +16,30 @@
     <PackageReference Include="Serilog" Version="4.3.0" />
   </ItemGroup>
 
+
+
+
+
+
+
+	<ItemGroup>
+		<NativeKerberosDlls Include="$(PublishDir)krb*.dll" />
+		<NativeKerberosDlls Include="$(PublishDir)k5*.dll" />
+		<NativeKerberosDlls Include="$(PublishDir)gssapi*.dll" />
+	</ItemGroup>
+
+	<Target Name="MoveNativeKerberosDlls" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)runtimes\win-x64\native" />
+
+		<Move
+			SourceFiles="@(NativeKerberosDlls)"
+			DestinationFolder="$(PublishDir)runtimes\win-x64\native" />
+	</Target>
+	
+	
+	
+	
+	
  
     <!--
     <PropertyGroup Label="SqlClientNativeLibraries">

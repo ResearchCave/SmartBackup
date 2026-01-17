@@ -1,183 +1,168 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using SmartBackup.Common;
 using System.IO;
-using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SmartBackup.Common;
 
 namespace SmartBackup.Services
 {
-    public  class PluginManager
+    public sealed class PluginManager
     {
-        public class Plugin
+        public sealed class Plugin
         {
-            
-            public Plugin(Type module, Type Info ) {
-              
-                BackupModule = module;
-                BackupInfo = Info;
-            }
-            public Type  BackupModule { get; set; }
-            public Type BackupInfo { get; set; }
-        }
-        public Dictionary<string, Plugin> Modules { get; private set; }
-      public string  AppPath { get; set; }
+            public required string TypeKey { get; init; }
+            public required Type ModuleType { get; init; }
+            public Type? ConfigurationType { get; init; }
 
-
-        private static List<Assembly> GetAllAssembly()
-        {
-
-            var allAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-
-            HashSet<string> loadedAssemblies = new();
-
-            foreach (var item in allAssemblies)
-            {
-                loadedAssemblies.Add(item.FullName!);
-            }
-
-            Queue<Assembly> assembliesToCheck = new();
-            assembliesToCheck.Enqueue(Assembly.GetEntryAssembly()!);
-
-            while (assembliesToCheck.Any())
-            {
-                var assemblyToCheck = assembliesToCheck.Dequeue();
-                foreach (var reference in assemblyToCheck!.GetReferencedAssemblies())
-                {
-                    if (!loadedAssemblies.Contains(reference.FullName))
-                    {
-                        var assembly = Assembly.Load(reference);
-
-                        assembliesToCheck.Enqueue(assembly);
-
-                        loadedAssemblies.Add(reference.FullName);
-
-                        allAssemblies.Add(assembly);
-                    }
-                }
-            }
-
-            return allAssemblies;
+            // backward compatibility
+            public Type BackupModule => ModuleType;
+            public Type? BackupInfo => ConfigurationType;
         }
 
+        private readonly Dictionary<string, Plugin> _modules =
+            new(StringComparer.InvariantCultureIgnoreCase);
 
+        public IReadOnlyDictionary<string, Plugin> Modules => _modules;
 
-        List<Assembly> allAssemblies = null;
-        public PluginManager()
+        public string PluginsPath { get; }
+
+        public PluginManager(string? pluginsPath = null)
         {
+            PluginsPath = pluginsPath ??
+                Path.Combine(
+                    Path.GetDirectoryName(Environment.ProcessPath)!,
+                    "plugins");
+        }
 
-            Modules = new Dictionary<string, Plugin>(StringComparer.InvariantCultureIgnoreCase);
-            //   AppPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            AppPath = Path.GetDirectoryName(Environment.ProcessPath);
+        // ----------------------------
+        // Public API (legacy safe)
+        // ----------------------------
 
+        public void Init() => Load();
 
-            allAssemblies = GetAllAssembly();
+        public Type? GetBackupModule(string typeKey)
+        {
+            return _modules.TryGetValue(typeKey, out var plugin)
+                ? plugin.ModuleType
+                : null;
+        }
 
+        public T Create<T>(string typeKey, IServiceProvider sp) where T : class
+        {
+            if (!_modules.TryGetValue(typeKey, out var plugin))
+                throw new KeyNotFoundException($"Plugin not found: {typeKey}");
 
-            List<Assembly> aa = GetAllAssembly();
+            return (T)ActivatorUtilities.CreateInstance(sp, plugin.ModuleType);
+        }
 
-            var asms = Assembly.GetExecutingAssembly().ExportedTypes;
+        // ----------------------------
+        // Core logic
+        // ----------------------------
 
-            /*
-            foreach (var reference in asms)
+        public void Load()
+        {
+            _modules.Clear();
+#if DEBUG
+
+            // 1) FORCE-LOAD plugin assemblies from APPLICATION FOLDER
+            LoadAssembliesFromFolder(AppContext.BaseDirectory);
+#endif
+
+            // 2) DISCOVER from all loaded assemblies (built-in + app folder)
+   
+
+            // 3) LOAD external plugins (/plugins folder)
+            if (Directory.Exists(PluginsPath))
+            {
+                LoadAssembliesFromFolder(PluginsPath);
+            }
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                DiscoverPlugins(asm);
+            }
+
+            Log.Information("Total plugins loaded: {Count}", _modules.Count);
+        }
+
+        // ----------------------------
+        // Internals
+        // ----------------------------
+
+        private void LoadAssembliesFromFolder(string folder)
+        {
+            foreach (var dll in Directory.EnumerateFiles(folder, "*.dll"))
             {
                 try
                 {
-                    var assembly = Assembly.Load(reference);
-                    allAssemblies.Add(assembly);
-                    Log.Logger.Information("Loaded assembly {0} : {1}", reference.Name);
+                    var name = AssemblyName.GetAssemblyName(dll);
+
+                    // avoid duplicate loads
+                    if (AppDomain.CurrentDomain.GetAssemblies()
+                        .Any(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), name)))
+                        continue;
+
+                    // limit scope (important)
+                  //  if (!name.Name!.StartsWith("SmartBackup", StringComparison.OrdinalIgnoreCase))
+                  //      continue;
+
+                    AssemblyLoadContext.Default.LoadFromAssemblyPath(dll);
                 }
-                catch (Exception x)
+                catch (BadImageFormatException ex)
                 {
-                    Log.Logger.Verbose("Unable to load assembly {0} : {1}", reference.Name, x.Message);
+                    Log.Warning( "Skipping non-.NET DLL: {0} ({1})", dll, ex.Message);
+                }
+                catch
+                {
+                    // ignore optional plugins
                 }
             }
-            */
-
-           // LoadPluginsFromFolder(AppPath);
-            /*
-            string modulesFolder = Path.Combine(AppPath, "Modules");
-
-            if (Directory.Exists(modulesFolder))
-            {
-                LoadPluginsFromFolder(modulesFolder);
-            }
-            else
-            {
-                LoadPluginsFromFolder(AppPath);
-            }*/
-
         }
 
-        private void LoadPluginsFromFolder(string folder)
+        private void DiscoverPlugins(Assembly asm)
         {
-            foreach (string dll in Directory.GetFiles(folder, "*.dll"))
+            foreach (var type in GetTypesSafe(asm))
             {
-                try
-                {
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
 
-                    // Assembly.UnsafeLoadFrom
-                    Assembly asm = Assembly.UnsafeLoadFrom(dll);
-                    if (!allAssemblies.Any(o => o.FullName == asm.FullName))
-                    {
-                        allAssemblies.Add(asm);
+                var attr = type.GetCustomAttribute<BackupModuleAttribute>();
+                if (attr == null)
+                    continue;
 
-                    }
-                }
-                catch (BadImageFormatException bx)
-                {
+                if (!typeof(IBackupOperation).IsAssignableFrom(type))
+                    continue;
 
-                }
-                catch (Exception x)
+                var plugin = new Plugin
                 {
-                    Log.Logger.Verbose("Unable to load assembly {0} : {1}", dll, x.Message);
+                    TypeKey = attr.Type,
+                    ModuleType = type,
+                    ConfigurationType = attr.ConfigurationType
+                };
+
+                if (_modules.TryAdd(plugin.TypeKey, plugin))
+                {
+                    Log.Information(
+                        "Registered plugin '{Key}' from {Assembly}",
+                        plugin.TypeKey,
+                        asm.GetName().Name);
                 }
             }
         }
 
-        public void  Init()
+        private static IEnumerable<Type> GetTypesSafe(Assembly asm)
         {
-            Modules.Clear();
-
-            foreach (Assembly assembly in allAssemblies)
+            try
             {
-                if (assembly is null) continue;
-                foreach (Type type in assembly.GetTypes())
-                {
-                    var attribs = type.GetCustomAttributes(typeof(BackupModuleAttribute), false);
-                    if (attribs != null && attribs.Any())
-                    { 
-                        foreach (var attr in attribs)
-                        {
-                            BackupModuleAttribute bma = (BackupModuleAttribute)attr;
-
-                           bool added= Modules.TryAdd(bma.Type, new Plugin( type, bma.ConfigurationType));
-
-                        }
-                    }
-                }
+                return asm.GetTypes();
             }
-             
-
+            catch (ReflectionTypeLoadException ex)
+            {
+                return ex.Types.Where(t => t != null)!;
+            }
         }
-        public Type? GetBackupModule(string TypeStr)
-        {
-            if(Modules.ContainsKey(TypeStr))
-            {
-                return Modules[TypeStr].BackupModule; 
-            }
-            else
-            {
-                return null;
-            }
-           
-
-        }
-
     }
 }
