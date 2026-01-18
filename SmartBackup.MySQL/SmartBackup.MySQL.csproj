@@ -7,16 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySqlBackup.NET" Version="2.6.2" />
+    <PackageReference Include="MySqlBackup.NET" Version="2.6.5" />
     <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.7" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.7" />
-    <PackageReference Include="System.Formats.Nrbf" Version="9.0.7" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.2" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.2" />
     <PackageReference Include="System.Globalization" Version="4.3.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="System.IO.Ports" Version="9.0.7" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.2" />
     <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
-    <PackageReference Include="System.Threading.AccessControl" Version="9.0.7" />
+    <PackageReference Include="System.Threading.AccessControl" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>
