@@ -20,9 +20,10 @@ namespace SmartBackup.Services
     {
         readonly PluginManager PluginMgr;
         readonly ILogger log;
-        public SchemaGenerator(  ILogger _log)
+        public SchemaGenerator(PluginManager _PluginMgr, ILogger _log)
         {
-            log = _log; 
+            PluginMgr = _PluginMgr;
+            log = _log;
         }
         public string GenerateSchemaForClass(Type myType)
         {
@@ -39,12 +40,17 @@ namespace SmartBackup.Services
 
             schema.Title = myType.Name;
             // schema.AllowAdditionalProperties = false;
-            schema.Properties["Items"].UniqueItems = true;
+            if (!schema.Properties.TryGetValue("Items", out JSchema? itemsSchema) || itemsSchema == null)
+            {
+                throw new InvalidOperationException("Schema generation failed: root schema does not contain an 'Items' property.");
+            }
+
+            itemsSchema.UniqueItems = true;
 
             string[] modulenames = PluginMgr.Modules.Keys.ToArray();
 
-            schema.Properties["Items"].Type = JSchemaType.Array;
-            schema.Properties["Items"].ItemsPositionValidation = false;
+            itemsSchema.Type = JSchemaType.Array;
+            itemsSchema.ItemsPositionValidation = false;
 
             //   schema.Properties["Items"].Properties["Name"].UniqueItems = true;
 
@@ -54,10 +60,21 @@ namespace SmartBackup.Services
                 ArraySchema.Type = JSchemaType.Array;
                 ArraySchema.ItemsPositionValidation = false;
 
-                Type t = m.Value.BackupInfo;
+                Type? t = m.Value.BackupInfo;
+                if (t == null)
+                {
+                    log.Warning("Skipping schema injection for module {ModuleType} because ConfigurationType is null.", m.Value.BackupModule);
+                    continue;
+                }
+
                 JSchema subschema = jsonSchemaGenerator.Generate(t, false);
                 subschema.AllowAdditionalProperties = false;
                 subschema.AllowUnevaluatedItems = false;
+
+                if (!subschema.Properties.ContainsKey("Type"))
+                {
+                    subschema.Properties["Type"] = new JSchema { Type = JSchemaType.String };
+                }
 
                 foreach (string mn in modulenames)
                 {
@@ -76,7 +93,7 @@ namespace SmartBackup.Services
 
                 log.Debug("\tInjectiong Schema for Module {0} Type:{1}", m.Value.BackupModule, t);
 
-                schema.Properties["Items"].AllOf.Add(ArraySchema);
+                itemsSchema.AllOf.Add(ArraySchema);
 
             }
             //  ArraySchema.AllOf.Properties["Name"].UniqueItems = true;

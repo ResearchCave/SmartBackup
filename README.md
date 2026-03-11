@@ -72,6 +72,18 @@ Use "$schema": "config-schema.json" directive in your config file so your editor
       "BackupPath": "d:\\backup\\"
     },
     {
+      "Type": "ElasticSearch",
+      "Host": "localhost",
+      "Port": 9200,
+      "Scheme": "http",
+      "SnapshotRepository": "smartbackup-repo",
+      "SnapshotName": "daily-snapshot",
+      "Indices": [ "logs-*", "metrics-*" ],
+      "Username": "elastic",
+      "Password": "*******",
+      "BackupPath": "d:\\backup\\"
+    },
+    {
       "Type": "MariaDB",
       "Host": "localhost",
       "Port": 3306,

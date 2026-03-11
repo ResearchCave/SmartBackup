@@ -60,6 +60,18 @@
       "BackupPath": "c:\\temp\\backup\\"
     },
     {
+      "Type": "ElasticSearch",
+      "Host": "localhost",
+      "Port": 9200,
+      "Scheme": "http",
+      "SnapshotRepository": "smartbackup-repo",
+      "SnapshotName": "daily-snapshot",
+      "Indices": [ "logs-*", "metrics-*" ],
+      "Username": "elastic",
+      "Password": "********",
+      "BackupPath": "c:\\temp\\backup\\"
+    },
+    {
       "Type": "MariaDB",
       "Host": "localhost",
       "Port": 3306,

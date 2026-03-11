@@ -36,7 +36,8 @@ $pluginProjects = @(
     "SmartBackup.MySQL\SmartBackup.MySQL.csproj",
     "SmartBackup.PostgreSQL\SmartBackup.PostgreSQL.csproj",
     "SmartBackup.Redis\SmartBackup.Redis.csproj",
-    "SmartBackup.MariaDB\SmartBackup.MariaDB.csproj"
+    "SmartBackup.MariaDB\SmartBackup.MariaDB.csproj",
+    "SmartBackup.Elasticsearch\SmartBackup.Elasticsearch.csproj"
 )
 
 # Build each plugin project in Release configuration
