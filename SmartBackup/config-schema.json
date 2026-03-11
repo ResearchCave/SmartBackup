@@ -124,6 +124,7 @@
                     "MSSQL",
                     "HyperV",
                     "MongoDB",
+                    "PostgreSQL",
                     "File"
                   ]
                 },
@@ -202,6 +203,7 @@
                     "MSSQL",
                     "HyperV",
                     "MongoDB",
+                    "PostgreSQL",
                     "File"
                   ]
                 },
@@ -277,6 +279,7 @@
                     "MSSQL",
                     "HyperV",
                     "MongoDB",
+                    "PostgreSQL",
                     "File"
                   ]
                 },
@@ -348,6 +351,7 @@
                     "MSSQL",
                     "HyperV",
                     "MongoDB",
+                    "PostgreSQL",
                     "File"
                   ]
                 },
@@ -369,6 +373,80 @@
               },
               "required": [
                 "MongoDbDir",
+                "Database",
+                "Host",
+                "Type"
+              ]
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "if": {
+              "properties": {
+                "Type": {
+                  "const": "PostgreSQL"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "additionalProperties": false,
+              "unevaluatedItems": false,
+              "properties": {
+                "PostgreSqlBinDir": {
+                  "description": "Local path containing PostgreSQL binaries (pg_dump). Optional if pg_dump is on PATH.",
+                  "type": "string"
+                },
+                "Port": {
+                  "type": "integer",
+                  "default": 5432
+                },
+                "Database": {
+                  "description": "Name of PostgreSQL Database",
+                  "type": "string"
+                },
+                "Host": {
+                  "description": "PostgreSQL server hostname (without port).",
+                  "type": "string",
+                  "default": "localhost"
+                },
+                "Username": {
+                  "type": "string"
+                },
+                "Password": {
+                  "type": "string"
+                },
+                "Type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "enum": [
+                    "MySQL",
+                    "MSSQL",
+                    "HyperV",
+                    "MongoDB",
+                    "PostgreSQL",
+                    "File"
+                  ]
+                },
+                "Name": {
+                  "description": "Name of this job, must be unique",
+                  "type": "string"
+                },
+                "CloseProcesses": {
+                  "description": "These processes will be closed before backup operation, type only process names in the items (Example: calc.exe)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "BackupPath": {
+                  "description": "Destination Folder; Example: D:\\Backups\\\r\nChange this if you want to back up to any other location than global backup location",
+                  "type": "string"
+                }
+              },
+              "required": [
                 "Database",
                 "Host",
                 "Type"
@@ -421,6 +499,7 @@
                     "MSSQL",
                     "HyperV",
                     "MongoDB",
+                    "PostgreSQL",
                     "File"
                   ]
                 },

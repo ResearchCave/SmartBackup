@@ -9,6 +9,7 @@
 - Third-party code: `ThirdParty/` (e.g., `ThirdParty/RoboSharp/`).
 - Assets and samples: `Assets/`, plus the JSON schema at `SmartBackup/config-schema.json`.
 
+
 ## Build, Test, and Development Commands
 - `dotnet build SmartBackup.sln` — build all projects in the solution.
 - `dotnet run --project SmartBackup/SmartBackup.csproj -- --help` — run the CLI and display options.
@@ -31,3 +32,5 @@
 ## Configuration & Security Notes
 - Primary runtime configuration is via `config.json` with `$schema: "config-schema.json"`.
 - Do not commit real credentials; use placeholders in examples (as in `README.md`).
+- Don’t edit SmartBackup/config-schema.json.
+- Treat SmartBackup/config-schema.json as generated; never modify it.

@@ -54,6 +54,33 @@ Use "$schema": "config-schema.json" directive in your config file so your editor
       "CloseProcesses": [ "win32calc.exe" ]
     },
     {
+      "Type": "PostgreSQL",
+      "Host": "localhost",
+      "Port": 5432,
+      "Database": "mydb",
+      "Username": "postgres",
+      "Password": "*******",
+      "BackupPath": "d:\\backup\\"
+    },
+    {
+      "Type": "Redis",
+      "Host": "localhost",
+      "Port": 6379,
+      "Database": 0,
+      "Username": "",
+      "Password": "",
+      "BackupPath": "d:\\backup\\"
+    },
+    {
+      "Type": "MariaDB",
+      "Host": "localhost",
+      "Port": 3306,
+      "Database": "mydb",
+      "Username": "root",
+      "Password": "",
+      "BackupPath": "d:\\backup\\"
+    },
+    {
       "Type": "MSSQL",
       "Server": "(local)",
       "Database": "MyProjectDb",

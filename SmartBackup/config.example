@@ -42,6 +42,33 @@
       "CloseProcesses": [ "win32calc.exe" ]
     },
     {
+      "Type": "PostgreSQL",
+      "Host": "localhost",
+      "Port": 5432,
+      "Database": "mydb",
+      "Username": "postgres",
+      "Password": "********",
+      "BackupPath": "c:\\temp\\backup\\"
+    },
+    {
+      "Type": "Redis",
+      "Host": "localhost",
+      "Port": 6379,
+      "Database": 0,
+      "Username": "",
+      "Password": "",
+      "BackupPath": "c:\\temp\\backup\\"
+    },
+    {
+      "Type": "MariaDB",
+      "Host": "localhost",
+      "Port": 3306,
+      "Database": "mydb",
+      "Username": "root",
+      "Password": "",
+      "BackupPath": "c:\\temp\\backup\\"
+    },
+    {
       "Type": "MSSQL",
       "Server": "(local)",
       "Database": "MyProjectDb",

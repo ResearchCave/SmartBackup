@@ -39,14 +39,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="config.example">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="config.example.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="config-schema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -73,6 +76,8 @@
 	</Target>
 
 
-
+	<Target Name="CreatePluginsFolder" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)plugins" />
+	</Target>
 
 </Project>
