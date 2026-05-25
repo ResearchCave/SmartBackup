@@ -53,5 +53,8 @@ namespace SmartBackup.Model
         [Description("Send mail after all backup jobs (Using SMTP Settings). If this property is not specified, mail report will be sent if SMTP settings are present.")]
         public bool SendReport { get; set; } = true;
 
+
+       // public IEnumerable<object> PushProvider { get; set; }
+
     }
 }

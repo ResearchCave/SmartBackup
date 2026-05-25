@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackupServer.Client", "Back
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBackup.Agent", "SmartBackup.Agent\SmartBackup.Agent.csproj", "{0564FCB7-B83E-4161-AC1C-69F330AFC8E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBackup.KopiaPushProvider", "SmartBackup.KopiaPushProvider\SmartBackup.KopiaPushProvider.csproj", "{D7D04B54-FFD3-4F76-8643-72C0214546C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBackup.RSyncPushProvider", "SmartBackup.RSyncPushProvider\SmartBackup.RSyncPushProvider.csproj", "{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +107,14 @@ Global
 		{0564FCB7-B83E-4161-AC1C-69F330AFC8E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0564FCB7-B83E-4161-AC1C-69F330AFC8E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0564FCB7-B83E-4161-AC1C-69F330AFC8E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D04B54-FFD3-4F76-8643-72C0214546C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D04B54-FFD3-4F76-8643-72C0214546C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D04B54-FFD3-4F76-8643-72C0214546C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D04B54-FFD3-4F76-8643-72C0214546C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,6 +129,8 @@ Global
 		{000DF049-9C27-4331-BFF5-7B87D07FAC11} = {D94214B0-CD46-4664-94AF-872B5ABD24D9}
 		{1FF72310-93FA-41A4-A01E-0A3D6AF2B72E} = {D94214B0-CD46-4664-94AF-872B5ABD24D9}
 		{0B47711E-BFF2-4DD9-9A2C-8D2ED4D2036C} = {D94214B0-CD46-4664-94AF-872B5ABD24D9}
+		{D7D04B54-FFD3-4F76-8643-72C0214546C8} = {D94214B0-CD46-4664-94AF-872B5ABD24D9}
+		{6EB57D9D-7BF0-4B22-A555-B1A6ACA7F1CD} = {D94214B0-CD46-4664-94AF-872B5ABD24D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ED01FBAE-3A16-4A5D-8BAB-74C7734ACF61}
