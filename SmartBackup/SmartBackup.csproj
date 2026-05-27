@@ -11,8 +11,11 @@
     
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
- 
-    <ApplicationIcon>SmartBackup.ico</ApplicationIcon>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+		<PublishTrimmed>false</PublishTrimmed>
+
+		<ApplicationIcon>SmartBackup.ico</ApplicationIcon>
     
   </PropertyGroup>
  
