@@ -11,7 +11,7 @@ namespace SmartBackup.Model
 
     public enum SQLBackupType
     {
-        Full, Incremental
+        Full, Incremental, Sql
     }
     public  class MSSQLInfo: BackupInfo
 	{

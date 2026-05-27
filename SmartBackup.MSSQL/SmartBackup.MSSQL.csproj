@@ -2,69 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-
- 
-
-    
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="181.19.0" />
     <PackageReference Include="Serilog" Version="4.3.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.8" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.16" />
   </ItemGroup>
-
-
-
-
-
-
-
-	<ItemGroup>
-		<NativeKerberosDlls Include="$(PublishDir)krb*.dll" />
-		<NativeKerberosDlls Include="$(PublishDir)k5*.dll" />
-		<NativeKerberosDlls Include="$(PublishDir)gssapi*.dll" />
-	</ItemGroup>
-
-	<Target Name="MoveNativeKerberosDlls" AfterTargets="Publish">
-		<MakeDir Directories="$(PublishDir)runtimes\win-x64\native" />
-
-		<Move SourceFiles="@(NativeKerberosDlls)" DestinationFolder="$(PublishDir)runtimes\win-x64\native" />
-	</Target>
-	
-	
-	
-	
-	
- 
-    <!--
-    <PropertyGroup Label="SqlClientNativeLibraries">
-    <CopySNIFiles>false</CopySNIFiles>
-  </PropertyGroup>
-
-  <Target Name="EmbedSqlClientNativeLibraries" BeforeTargets="ResolveReferences">
-    <ItemGroup>
-      <EmbeddedResource Include="@(SNIDllFiles)">
-        <Visible>false</Visible>
-        <Link Condition="$([MSBuild]::ValueOrDefault('%(Identity)', '').Contains('x86'))">costura32\%(Filename)%(Extension)</Link>
-        <Link Condition="$([MSBuild]::ValueOrDefault('%(Identity)', '').Contains('x64'))">costura64\%(Filename)%(Extension)</Link>
-      </EmbeddedResource>
-    </ItemGroup>
-  </Target>
-  
-  <ItemGroup>
-    
-    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="170.8.0" />
-    <PackageReference Include="Serilog" Version="2.12.1-dev-01587" />
-  </ItemGroup>
-    -->
-  
 
   <ItemGroup>
     <ProjectReference Include="..\SmartBackup.Common\SmartBackup.Common.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <NativeKerberosDlls Include="$(PublishDir)krb*.dll" />
+    <NativeKerberosDlls Include="$(PublishDir)k5*.dll" />
+    <NativeKerberosDlls Include="$(PublishDir)gssapi*.dll" />
+  </ItemGroup>
+
+  <Target Name="MoveNativeKerberosDlls" AfterTargets="Publish" Condition="'@(NativeKerberosDlls)' != ''">
+    <MakeDir Directories="$(PublishDir)runtimes\$(RuntimeIdentifier)\native" />
+    <Move SourceFiles="@(NativeKerberosDlls)" DestinationFolder="$(PublishDir)runtimes\$(RuntimeIdentifier)\native" />
+  </Target>
 
 </Project>

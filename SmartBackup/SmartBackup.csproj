@@ -61,10 +61,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartBackup.Archiver\SmartBackup.Archiver.csproj" />
+    <ProjectReference Include="..\SmartBackup.Common\SmartBackup.Common.csproj" />
   </ItemGroup>
 
-
+  
 
 	<ItemGroup>
 		<NativeKerberosDlls Include="$(PublishDir)krb*.dll" />

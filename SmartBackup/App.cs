@@ -9,7 +9,6 @@ using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 using Serilog;
 using ShellProgressBar;
-using SmartBackup.Archiver;
 using SmartBackup.Common; 
 using SmartBackup.Model;  
 using SmartBackup.Services;
@@ -255,11 +254,20 @@ namespace SmartBackup
 
                 if (jitem.ValueKind == JsonValueKind.String)
                 {
-                    BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, typeof(ArchiveOperation));
                     BackupType = "File";
                     BackupName = jitem.GetString();
+                    Type? ModuleType = PluginMgr.GetBackupModule(BackupType);
 
-                    log.Information("Initializing Backup Operation [{0}]\t{1}", BackupType, BackupName  );
+                    if (ModuleType != null)
+                    {
+                        BackupOp = (IBackupOperation)ActivatorUtilities.CreateInstance(sp, ModuleType);
+                        log.Information("Initializing Backup Operation [{0}]	{1}", BackupType, BackupName);
+                    }
+                    else
+                    {
+                        log.Fatal("Unable to resolve Backup Module {0}", BackupType);
+                        return 7;
+                    }
                 }
                 else
                 {

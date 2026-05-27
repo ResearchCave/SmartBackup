@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Serilog.Events;
-using SmartBackup.Archiver;
 using SmartBackup.Common;
 using SmartBackup.Model;
 using SmartBackup.Services;

@@ -25,6 +25,7 @@ namespace SmartBackup.Services
 
         private readonly Dictionary<string, Plugin> _modules =
             new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly List<AssemblyLoadContext> _pluginContexts = new();
 
         public IReadOnlyDictionary<string, Plugin> Modules => _modules;
 
@@ -66,20 +67,20 @@ namespace SmartBackup.Services
         public void Load()
         {
             _modules.Clear();
+            _pluginContexts.Clear();
 #if DEBUG
 
             // 1) FORCE-LOAD plugin assemblies from APPLICATION FOLDER
-            LoadAssembliesFromFolder(AppContext.BaseDirectory);
+            LoadAssembliesFromAppFolder(AppContext.BaseDirectory);
 #endif
 
-            // 2) DISCOVER from all loaded assemblies (built-in + app folder)
-   
-
-            // 3) LOAD external plugins (/plugins folder)
+            // 2) LOAD external plugins (/plugins folder)
             if (Directory.Exists(PluginsPath))
             {
-                LoadAssembliesFromFolder(PluginsPath);
+                LoadPluginAssemblies(PluginsPath);
             }
+
+            // 3) DISCOVER from all loaded assemblies (built-in + plugins)
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
                 DiscoverPlugins(asm);
@@ -92,9 +93,9 @@ namespace SmartBackup.Services
         // Internals
         // ----------------------------
 
-        private void LoadAssembliesFromFolder(string folder)
+        private void LoadAssembliesFromAppFolder(string folder)
         {
-            foreach (var dll in Directory.EnumerateFiles(folder, "*.dll"))
+            foreach (var dll in Directory.EnumerateFiles(folder, "SmartBackup*.dll"))
             {
                 try
                 {
@@ -105,20 +106,73 @@ namespace SmartBackup.Services
                         .Any(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), name)))
                         continue;
 
-                    // limit scope (important)
-                  //  if (!name.Name!.StartsWith("SmartBackup", StringComparison.OrdinalIgnoreCase))
-                  //      continue;
-
                     AssemblyLoadContext.Default.LoadFromAssemblyPath(dll);
                 }
                 catch (BadImageFormatException ex)
                 {
-                    Log.Warning( "Skipping non-.NET DLL: {0} ({1})", dll, ex.Message);
+                    Log.Warning("Skipping non-.NET DLL: {0} ({1})", dll, ex.Message);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignore optional plugins
+                    Log.Warning(ex, "Unable to load assembly from app folder: {Path}", dll);
                 }
+            }
+        }
+
+        private void LoadPluginAssemblies(string pluginsPath)
+        {
+            foreach (var pluginDir in Directory.EnumerateDirectories(pluginsPath))
+            {
+                foreach (var pluginDll in GetPluginEntryAssemblies(pluginDir))
+                {
+                    LoadPluginAssembly(pluginDll);
+                }
+            }
+
+            foreach (var pluginDll in Directory.EnumerateFiles(pluginsPath, "SmartBackup*.dll"))
+            {
+                LoadPluginAssembly(pluginDll);
+            }
+        }
+
+        private static IEnumerable<string> GetPluginEntryAssemblies(string pluginDir)
+        {
+            var preferredDll = Path.Combine(pluginDir, Path.GetFileName(pluginDir) + ".dll");
+            if (File.Exists(preferredDll))
+            {
+                yield return preferredDll;
+                yield break;
+            }
+
+            foreach (var dll in Directory.EnumerateFiles(pluginDir, "SmartBackup*.dll"))
+            {
+                var name = Path.GetFileNameWithoutExtension(dll);
+                if (!name.Equals("SmartBackup.Common", StringComparison.OrdinalIgnoreCase))
+                    yield return dll;
+            }
+        }
+
+        private void LoadPluginAssembly(string pluginDll)
+        {
+            try
+            {
+                var name = AssemblyName.GetAssemblyName(pluginDll);
+
+                if (AppDomain.CurrentDomain.GetAssemblies()
+                    .Any(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), name)))
+                    return;
+
+                var loadContext = new PluginLoadContext(pluginDll);
+                _pluginContexts.Add(loadContext);
+                loadContext.LoadFromAssemblyPath(pluginDll);
+            }
+            catch (BadImageFormatException ex)
+            {
+                Log.Warning("Skipping non-.NET plugin DLL: {0} ({1})", pluginDll, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Unable to load plugin assembly: {Path}", pluginDll);
             }
         }
 
@@ -161,7 +215,41 @@ namespace SmartBackup.Services
             }
             catch (ReflectionTypeLoadException ex)
             {
+                foreach (var loaderException in ex.LoaderExceptions.Where(e => e != null))
+                {
+                    Log.Warning(loaderException, "Unable to load one or more types from {Assembly}", asm.FullName);
+                }
+
                 return ex.Types.Where(t => t != null)!;
+            }
+        }
+
+        private sealed class PluginLoadContext : AssemblyLoadContext
+        {
+            private readonly AssemblyDependencyResolver _resolver;
+
+            public PluginLoadContext(string pluginPath)
+                : base(Path.GetFileNameWithoutExtension(pluginPath), isCollectible: false)
+            {
+                _resolver = new AssemblyDependencyResolver(pluginPath);
+            }
+
+            protected override Assembly? Load(AssemblyName assemblyName)
+            {
+                var sharedAssembly = AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), assemblyName));
+
+                if (sharedAssembly != null)
+                    return sharedAssembly;
+
+                var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
+                return assemblyPath != null ? LoadFromAssemblyPath(assemblyPath) : null;
+            }
+
+            protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+            {
+                var libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+                return libraryPath != null ? LoadUnmanagedDllFromPath(libraryPath) : IntPtr.Zero;
             }
         }
     }
